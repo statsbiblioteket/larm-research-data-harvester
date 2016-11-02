@@ -1,16 +1,35 @@
 package dk.statsbiblioteket.mediestream.larmharvester;
 
+import com.univocity.parsers.common.processor.RowListProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.common.processor.*;
+import com.univocity.parsers.csv.*;
+import com.univocity.parsers.fixed.*;
+import main.dk.statsbiblioteket.mediestream.larmharvester.Harvester;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.lang.System.out;
+import static jdk.nashorn.internal.objects.Global.println;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -24,7 +43,7 @@ public class HarvesterTest {
 
     @Test
     public void testHarvest() throws IOException {
-        System.out.println(new Harvester("http://api.stage.larm.fm/v6/").harvest());
+        out.println(new Harvester("http://api.stage.larm.fm/v6/").harvest());
     }
 
     @Test
@@ -38,46 +57,67 @@ public class HarvesterTest {
         assertEquals( jsonObject.get( "double" ), PropertyUtils.getProperty( bean, "double" ) );
         assertEquals( jsonObject.get( "func" ), PropertyUtils.getProperty( bean, "func" ) );
         List expected = JSONArray.toList( jsonObject.getJSONArray( "array" ) );
-        System.out.println(jsonObject);
+        out.println(jsonObject);
 
         json = jsonStr;
         jsonObject = JSONObject.fromObject( json );
-        System.out.println(jsonObject);
+        out.println(jsonObject);
 
         String content = new String(Files.readAllBytes(Paths.get("src/resources/rasmus.json")));
         json = content;
         jsonObject = JSONObject.fromObject( json );
-        System.out.println(jsonObject);
+        out.println(jsonObject);
+
+    }
+
+    @Test
+    public void testExtractUniqueID() throws FileNotFoundException {
+        try {
+            Harvester.extractUniqueJSON("src/test/data/SbStreamingServerAnalysis_r056.csv",
+                    "src/test/data/unique_json_lines.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
     @Test
     public void testHttpGet() throws Exception {
         //dev systemet
-        System.out.println(Harvester.httpGet("https://dev.api.dighumlab.org/v6/Search/Get?q=1997" +
+
+        out.println(Harvester.httpGet("https://dev.api.dighumlab.org/v6/Search/Get?q=1997" +
                 "&pageIndex=0&pageSize=10&sessionGUID=c19480c5-ed5c-4a99-b758-a3c05fdbb2c5" +
                 "&format=json2&userHTTPStatusCodes=False"));
-        System.out.println();
+        out.println();
 
         //stage systemet
-        System.out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/Session/Create?format=json2&userHTTPStatusCodes=False"));
-        System.out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/EZSearch/Get?q=2011" +
+        out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/Session/Create?format=json2&userHTTPStatusCodes=False"));
+        out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/EZSearch/Get?q=2011" +
                 "&pageIndex=0&pageSize=20&sessionGUID=572f010b-a416-48ce-baa3-590768a641e2" +
                 "&format=json2&userHTTPStatusCodes=False"));
-        System.out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/User/" +
+        out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/User/" +
                 "Get?sessionGUID=572f010b-a416-48ce-baa3-590768a641e2&format=json2&userHTTPStatusCodes=False"));
         //Rasmus Klump og Futkarl / DMiP test (indeholder annotation)
         //http://stage.larm.fm/Asset/06e5a2a8-0f70-4b06-af9c-2d79522be8a8
-        System.out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/EZAsset/" +
+        out.println(Harvester.httpGet("http://api.stage.larm.fm/v6/EZAsset/" +
                 "Get?id=06e5a2a8-0f70-4b06-af9c-2d79522be8a8" +
                 "&sessionGUID=572f010b-a416-48ce-baa3-590768a641e2&format=json2&userHTTPStatusCodes=False"));
-        System.out.println();
+        out.println();
 
         //prod systemet
-        System.out.println(Harvester.httpGet("http://api.prod.larm.fm/v6/Session/Create?format=json2&userHTTPStatusCodes=False"));
-        System.out.println(Harvester.httpGet("http://api.prod.larm.fm/v6/EZAsset/" +
+        out.println(Harvester.httpGet("http://api.prod.larm.fm/v6/Session/Create?format=json2&userHTTPStatusCodes=False"));
+
+        http://api.prod.larm.fm/v6/EZAsset/Get?id=04c51ee1-1b6c-4e50-b93b-79206c8a3eb6&format=json2&userHTTPStatusCodes=False
+
+        out.println(Harvester.httpGet("http://api.prod.larm.fm/v6/EZAsset/" +
                 "Get?id=04c51ee1-1b6c-4e50-b93b-79206c8a3eb6&sessionGUID=030055bd-30d8-46d1-baa4-2873c50dcfaa" +
                 "&format=json2&userHTTPStatusCodes=False"));
+
+
+        out.println(Harvester.httpGet("http://api.prod.larm.fm/v6/EZSearch/" +
+                "Get?q=1997&pageIndex=0&pageSize=1000&sessionGUID=d2e27936-7f33-43cf-94d7-32d081b45f48" +
+                "&format=json2&userHTTPStatusCodes=False"));
+
 
         //EmailPassword Login
         //System.out.println(Harvester.httpPost("http://api.prod.larm.fm/v6/baj@statsbiblioteket.dk/Login",

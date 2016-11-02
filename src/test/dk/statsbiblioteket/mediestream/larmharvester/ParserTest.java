@@ -16,13 +16,13 @@ public class ParserTest {
     @Test
     public void testParseSessionCreateToSessionGuid() throws IOException {
         String content = new String(Files.readAllBytes(Paths.get("src/resources/sessionCreate.json")));
-        String guid = new Parser().parseSessionCreateToSessionGuid(content);
+        String guid = new dk.statsbiblioteket.mediestream.larmharvester.Parser().parseSessionCreateToSessionGuid(content);
         assertEquals(guid, "2f95f1ba-ac17-49c8-b7fa-add7a4da3964");
     }
 
     @Test
     public void testFilter() throws IOException {
-        System.out.println(new Parser().filter(HarvesterTest.jsonStr));
+        System.out.println(new dk.statsbiblioteket.mediestream.larmharvester.Parser().filter(HarvesterTest.jsonStr));
     }
 
 }

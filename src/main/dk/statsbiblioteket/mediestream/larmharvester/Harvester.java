@@ -1,4 +1,4 @@
-package dk.statsbiblioteket.mediestream.larmharvester;
+package main.dk.statsbiblioteket.mediestream.larmharvester;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +7,17 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by baj on 7/28/16.
@@ -27,6 +38,8 @@ public class Harvester{
     private String pageSize = "&pageSize=100";
 
     public static final String ampersand = "&";
+    private static final String urlStart = "http://api.prod.larm.fm/v6/EZAsset/Get?id=";
+    private static final String urlEnd = "&format=json2&userHTTPStatusCodes=False";
 
     public Harvester() throws IOException {
         this("https://dev.api.dighumlab.org/v6/");
@@ -53,9 +66,36 @@ public class Harvester{
         String jsonStr = httpGet(urlStrStart + sessionCreateStr + formatStr + userHTTPStatusCodes);
         log.debug(urlStrStart + sessionCreateStr + formatStr + userHTTPStatusCodes);
         log.debug("sessionCreate jsonStr = ", jsonStr);
-        sessionGUID = new Parser().parseSessionCreateToSessionGuid(jsonStr);
+        sessionGUID = new dk.statsbiblioteket.mediestream.larmharvester.Parser().parseSessionCreateToSessionGuid(jsonStr);
     }
 
+    public static void extractUniqueJSON(String inFile, String outFile) throws FileNotFoundException {
+        List<String> lines = new ArrayList<String>();
+        List<String> uniqueLines = new ArrayList<String>();
+
+        try {
+            Stream<String> idStream =  Files.lines(Paths.get(inFile),
+                    Charset.forName("ISO-8859-2"))
+                    .skip(1);
+            //Find first column element
+            for (String line : idStream.collect(Collectors.toList())) {
+                lines.add(line.split(";")[0]);
+            }
+            //Insert in uniqueLines JSON for each unique ID
+            lines.stream().distinct().forEach(id->{
+                try {
+                    uniqueLines.add(Harvester.httpGet(urlStart+id+urlEnd));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            Files.write(Paths.get(outFile), uniqueLines);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
     /**
      * harvest all assets page number i.
      *
