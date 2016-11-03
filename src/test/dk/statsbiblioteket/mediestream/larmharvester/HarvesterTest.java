@@ -1,11 +1,5 @@
 package dk.statsbiblioteket.mediestream.larmharvester;
 
-import com.univocity.parsers.common.processor.RowListProcessor;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
-import com.univocity.parsers.common.processor.*;
-import com.univocity.parsers.csv.*;
-import com.univocity.parsers.fixed.*;
 import main.dk.statsbiblioteket.mediestream.larmharvester.Harvester;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
