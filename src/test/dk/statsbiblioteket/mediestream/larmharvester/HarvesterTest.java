@@ -6,24 +6,13 @@ import net.sf.json.JSONObject;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.System.out;
-import static jdk.nashorn.internal.objects.Global.println;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -65,14 +54,17 @@ public class HarvesterTest {
     }
 
     @Test
-    public void testExtractUniqueID() throws FileNotFoundException {
+    public void testExtractUniqueID() {
         try {
-            Harvester.extractUniqueJSON("src/test/data/SbStreamingServerAnalysis_r056.csv",
-                    "src/test/data/unique_json_lines.txt");
+            Harvester.writeJSONFile("src/test/data/SbStreamingServerAnalysis_r056.csv", "src/test/data/unique_json_lines.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void testWriteCSVFile() {
+        Harvester.writeCSVFile("src/test/data/SbStreamingServerAnalysis_r056.csv", "src/test/data/csvLines.txt");
     }
 
     @Test

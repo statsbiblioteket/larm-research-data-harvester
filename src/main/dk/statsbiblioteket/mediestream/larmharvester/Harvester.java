@@ -69,18 +69,14 @@ public class Harvester{
         sessionGUID = new dk.statsbiblioteket.mediestream.larmharvester.Parser().parseSessionCreateToSessionGuid(jsonStr);
     }
 
-    public static void extractUniqueJSON(String inFile, String outFile) throws FileNotFoundException {
+    public static void writeJSONFile(String inFile, String outFile) throws FileNotFoundException {
         List<String> lines = new ArrayList<String>();
         List<String> uniqueLines = new ArrayList<String>();
 
         try {
-            Stream<String> idStream =  Files.lines(Paths.get(inFile),
-                    Charset.forName("ISO-8859-2"))
-                    .skip(1);
+            Stream<String> idStream = getIDStream(inFile);
             //Find first column element
-            for (String line : idStream.collect(Collectors.toList())) {
-                lines.add(line.split(";")[0]);
-            }
+            splitIDStream(lines, idStream);
             //Insert in uniqueLines JSON for each unique ID
             lines.stream().distinct().forEach(id->{
                 try {
@@ -96,6 +92,30 @@ public class Harvester{
         }
 
     }
+
+    /**
+     * gets a stream of lines, where the first line is skipped
+     *
+     * @param inFile name of the file
+     */
+    public static Stream<String> getIDStream(String inFile) throws IOException {
+        return Files.lines(Paths.get(inFile),
+                Charset.forName("ISO-8859-2"))
+                .skip(1);
+    }
+
+    /**
+     * split the idStream up in columns.
+     *
+     * @param idStream stream of lines where the columns are separated by ;
+     * @param lines list, which gets filled with the streams first column
+     */
+    public static void splitIDStream(List<String> lines, Stream<String> idStream) {
+        for (String line : idStream.collect(Collectors.toList())) {
+            lines.add(line.split(";")[0]);
+        }
+    }
+
     /**
      * harvest all assets page number i.
      *
@@ -174,5 +194,68 @@ public class Harvester{
 
         conn.disconnect();
         return sb.toString();
+    }
+
+    /**
+     * writes a file containing unique id, title and description
+     *
+     * @param inFile file that contains the unique ids
+     * @param csvFile the file that shall be written
+     */
+    public static void writeCSVFile(String inFile, String csvFile) {
+        List<String> lines = new ArrayList<String>();
+        List<String> csvLines = new ArrayList<String>();
+
+        try {
+            Stream<String> idStream = getIDStream(inFile);
+            //Find first column element
+            splitIDStream(lines, idStream);
+            //Find occurences of "Title" and "Description" in the csvLine
+            lines.stream().distinct().forEach(id->{
+                try {
+                    csvLines.add(getTitleAndDescription(id, Harvester.httpGet(urlStart+id+urlEnd)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            Files.write(Paths.get(csvFile), csvLines);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * gives a descriptionline which content is both the title and description in the json lines
+     *
+     * @param id identifies the current item
+     * @param uniqueLine the json line, which contains title and description
+     */
+    public static String getTitleAndDescription(String id, String uniqueLine) {
+        String descriptionLine = "";
+        String tmpTitle = "";
+        String[] title = uniqueLine.split("Title");
+        String[] description = uniqueLine.split("\"Description");
+        for (int i = 1; i < description.length - 1; i++) {
+            try {
+                if (i < title.length)
+                    tmpTitle = title[i].substring(3, title[i].length() - 1);
+                String tmpDescription = description[i].substring(3, description[i].length() - 1);;
+                if (tmpDescription.contains("IsPositionAdjusted")) {
+                    tmpDescription = description[i].substring(3, description[i].indexOf("IsPositionAdjusted"));
+                }
+                if (!(tmpDescription.startsWith("Source") || tmpDescription.startsWith("Project"))) {
+                    descriptionLine += id + "; ";
+                    if (i < title.length)
+                        descriptionLine += "Title: " + tmpTitle.substring(0, tmpTitle.indexOf("\",\"")) + "; ";
+                    descriptionLine +=
+                            "Description: " + tmpDescription.substring(0, tmpDescription.indexOf("\",\"")) + "; \n";
+                }
+            }
+            catch (Exception ex) {
+                System.out.println(descriptionLine + "\n" + description[i]);
+            }
+        }
+        return descriptionLine;
     }
 }
