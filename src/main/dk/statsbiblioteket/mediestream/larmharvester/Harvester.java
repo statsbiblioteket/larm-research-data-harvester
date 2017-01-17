@@ -1,4 +1,4 @@
-package main.dk.statsbiblioteket.mediestream.larmharvester;
+package dk.statsbiblioteket.mediestream.larmharvester;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
