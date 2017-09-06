@@ -1,22 +1,19 @@
 package dk.statsbiblioteket.mediestream.larmharvester;
 
 import main.dk.statsbiblioteket.mediestream.larmharvester.Harvester;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
 
 import static java.lang.System.out;
-import static org.testng.Assert.assertEquals;
+
+//import net.sf.json.JSONArray;
+//import net.sf.json.JSONObject;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
 
 /**
- * Created by baj on 8/1/16.
+ * Created by kaah on 6/9/17.
  */
 public class HarvesterTest {
 
@@ -29,16 +26,17 @@ public class HarvesterTest {
         out.println(new Harvester("http://api.stage.larm.fm/v6/").harvest());
     }
 
+/*
     @Test
     public void testJson() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, IOException {
         String json = "{name=\"json\",bool:true,int:1,double:2.2,func:function(a){ return a; },array:[1,2]}";
         JSONObject jsonObject = JSONObject.fromObject( json );
         Object bean = JSONObject.toBean( jsonObject );
-        assertEquals( jsonObject.get( "name" ), PropertyUtils.getProperty( bean, "name" ) );
-        assertEquals( jsonObject.get( "bool" ), PropertyUtils.getProperty( bean, "bool" ) );
-        assertEquals( jsonObject.get( "int" ), PropertyUtils.getProperty( bean, "int" ) );
-        assertEquals( jsonObject.get( "double" ), PropertyUtils.getProperty( bean, "double" ) );
-        assertEquals( jsonObject.get( "func" ), PropertyUtils.getProperty( bean, "func" ) );
+//        assertEquals( jsonObject.get( "name" ), PropertyUtils.getProperty( bean, "name" ) );
+//        assertEquals( jsonObject.get( "bool" ), PropertyUtils.getProperty( bean, "bool" ) );
+//        assertEquals( jsonObject.get( "int" ), PropertyUtils.getProperty( bean, "int" ) );
+//        assertEquals( jsonObject.get( "double" ), PropertyUtils.getProperty( bean, "double" ) );
+//        assertEquals( jsonObject.get( "func" ), PropertyUtils.getProperty( bean, "func" ) );
         List expected = JSONArray.toList( jsonObject.getJSONArray( "array" ) );
         out.println(jsonObject);
 
@@ -53,6 +51,7 @@ public class HarvesterTest {
 
     }
 
+*/
     @Test
     public void testExtractUniqueID() {
         try {
@@ -65,6 +64,11 @@ public class HarvesterTest {
     @Test
     public void testWriteCSVFile() {
         Harvester.writeCSVFile("src/test/data/SbStreamingServerAnalysis_r056.csv", "src/test/data/csvLines.txt");
+    }
+
+    @Test
+    public void testReadCSVFile() {
+        Harvester.readCSVFile("/home/kaah/Code/Inno/ruben-data-harvester/harvester/data/Nielsen - Bibliografiske metadata for Ruben-samlingen (v3), juli 2015.csv");
     }
 
     @Test
@@ -106,7 +110,6 @@ public class HarvesterTest {
 
 
         //EmailPassword Login
-        //System.out.println(Harvester.httpPost("http://api.prod.larm.fm/v6/baj@statsbiblioteket.dk/Login",
           //      new String[0], new String[0]));
 
         //STATSMINISTER POUL NYRUP RASMUSSEN 'S NYTÅRSTALE 1994/1995

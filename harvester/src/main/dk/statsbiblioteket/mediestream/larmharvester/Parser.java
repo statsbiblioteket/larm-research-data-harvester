@@ -1,4 +1,4 @@
-package dk.statsbiblioteket.mediestream.larmharvester;
+package main.dk.statsbiblioteket.mediestream.larmharvester;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
