@@ -1,5 +1,9 @@
 package main.dk.statsbiblioteket.mediestream.larmharvester;
 
+import au.edu.apsr.mtk.base.METS;
+import au.edu.apsr.mtk.base.METSException;
+import au.edu.apsr.mtk.base.METSWrapper;
+import au.edu.apsr.mtk.base.MetsHdr;
 import com.opencsv.CSVReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,12 +240,28 @@ public class Harvester {
             while ((line = reader.readNext()) != null) {
                 for (int i = 0; i<15; i++) {
                     System.out.print(line[i] + " ");
+                    //writeMETS();
+
                 }
                 System.out.println();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static METS mets = null;
+
+    public static void writeMETS(String filenameMETS) throws METSException {
+        METSWrapper mw = new METSWrapper();
+        mets = mw.getMETSObject();
+
+        mets.setObjID("Example1");
+        mets.setProfile("http://localhost/profiles/scientific-datasets-profile");
+        mets.setType("investigation");
+
+        MetsHdr mh = mets.newMetsHdr();
+
     }
 
     /**

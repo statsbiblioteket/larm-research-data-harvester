@@ -68,7 +68,7 @@ public class HarvesterTest {
 
     @Test
     public void testReadCSVFile() {
-        Harvester.readCSVFile("/home/kaah/Code/Inno/ruben-data-harvester/harvester/test/data/Nielsen - Bibliografiske metadata for Ruben-samlingen (v3), juli 2015.csv");
+        Harvester.readCSVFile("./test/data/Nielsen - Bibliografiske metadata for Ruben-samlingen (v3), juli 2015.csv");
     }
 
     @Test
