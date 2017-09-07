@@ -243,128 +243,174 @@ public class Harvester {
         try {
             reader = new CSVReader(new FileReader(csvFile), ',');
             String[] line;
+            for (int i = 0; i < 5; i++)
+                reader.readNext();
             while ((line = reader.readNext()) != null) {
-                for (int i = 0; i<15; i++) {
-                    System.out.print(line[i] + " ");
-                }
-                System.out.println();
-                writeMETS("./test/data/METSfile.xml");
+                if (!line[0].isEmpty() )
+                    writeMETS("./test/data/METSfile.xml", line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (METSException e) {
             e.printStackTrace();
         }
     }
 
     private static METS mets = null;
 
-    public static void writeMETS(String filenameMETS) throws METSException {
-        METSWrapper mw = new METSWrapper();
-        mets = mw.getMETSObject();
-
-        mets.setObjID("Example1");
-        mets.setProfile("http://localhost/profiles/scientific-datasets-profile");
-        mets.setType("investigation");
-
-        MetsHdr mh = mets.newMetsHdr();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        String currentTime = df.format(cal.getTime());
-        mh.setCreateDate(currentTime);
-        mh.setLastModDate(currentTime);
-
-        Agent agent = mh.newAgent();
-        agent.setRole("CREATOR");
-        agent.setType("OTHER");
-        agent.setName("SampleMETSBuild");
-
-        mh.addAgent(agent);
-
-        mets.setMetsHdr(mh);
-
-        DmdSec dmd = mets.newDmdSec();
-        dmd.setID("J-1");
-        MdWrap mdw = dmd.newMdWrap();
-        mdw.setMDType("MODS");
+    public static void writeMETS(String filenameMETS, String[] line) {
+        for (int i = 0; i<21; i++) {
+            System.out.print(line[i] + " ");
+        }
+        System.out.println();
+        METSWrapper mw = null;
         try {
-            mdw.setXmlData(createMODS("Structure of a Thermophilic Serpin in the Native State", "experiment").getDocumentElement());
-        } catch (ParserConfigurationException e) {
+            mw = new METSWrapper();
+            mets = mw.getMETSObject();
+
+            mets.setObjID("hdl:1902/178");
+            //mets.setProfile("http://localhost/profiles/scientific-datasets-profile");
+            mets.setProfile("http://www.dspace.org/schema/aip/mets_aip_1_0.xsd");
+            mets.setType("DSpace ITEM");
+
+            MetsHdr mh = mets.newMetsHdr();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            String currentTime = df.format(cal.getTime());
+            mh.setCreateDate(currentTime);
+            mh.setLastModDate(currentTime);
+
+            Agent agent = mh.newAgent();
+            agent.setRole("CREATOR");
+            agent.setType("OTHER");
+            agent.setName("SampleMETSBuild");
+
+            mh.addAgent(agent);
+
+            mets.setMetsHdr(mh);
+
+            DmdSec dmd = mets.newDmdSec();
+            dmd.setID("J-1");
+            MdWrap mdw = dmd.newMdWrap();
+            mdw.setMDType("MODS");
+            try {
+                mdw.setXmlData(createTitleMODS(line[11], line[14]).getDocumentElement());
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            dmd.setMdWrap(mdw);
+
+            mets.addDmdSec(dmd);
+
+            DmdSec dmd2 = mets.newDmdSec();
+            dmd2.setID("J-2");
+            MdWrap mdw2 = dmd2.newMdWrap();
+            mdw2.setMDType("MODS");
+            try {
+                mdw2.setXmlData(createRoleMODS(line[20]).getDocumentElement());
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            dmd2.setMdWrap(mdw2);
+
+            mets.addDmdSec(dmd2);
+
+            DmdSec dmd3 = mets.newDmdSec();
+            dmd3.setID("J-3");
+            MdWrap mdw3 = dmd3.newMdWrap();
+            mdw3.setMDType("MODS");
+            try {
+                mdw3.setXmlData(createArtistMODS(line[18]).getDocumentElement());
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            dmd3.setMdWrap(mdw3);
+
+            mets.addDmdSec(dmd3);
+
+            DmdSec dmd4 = mets.newDmdSec();
+            dmd4.setID("J-4");
+            MdWrap mdw4 = dmd4.newMdWrap();
+            mdw4.setMDType("MODS");
+            try {
+                mdw4.setXmlData(createAuthorMODS(line[16]).getDocumentElement());
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            dmd4.setMdWrap(mdw4);
+
+            mets.addDmdSec(dmd4);
+
+//            DmdSec dmd2 = mets.newDmdSec();
+//            dmd2.setID("J-2");
+//            MdWrap mdw2 = dmd2.newMdWrap();
+//            mdw2.setMDType("MODS");
+//            try {
+//                mdw2.setXmlData(createTitleMODS("APS Source 125 Deg (includes xfiles, denzo)", "dataset", line[20], line[18], line[16], line[9]).getDocumentElement());
+//            } catch (ParserConfigurationException e) {
+//                e.printStackTrace();
+//            }
+//            dmd2.setMdWrap(mdw2);
+//
+//            mets.addDmdSec(dmd2);
+//
+//            FileSec fs = mets.newFileSec();
+//            FileGrp fg = fs.newFileGrp();
+//            fg.setUse("original");
+//            au.edu.apsr.mtk.base.File f = fg.newFile();
+//            f.setID("F-1");
+//            f.setSize(2097152000);
+//            f.setMIMEType("application/x-bzip");
+//            f.setOwnerID("de.tar.bz.0");
+//            f.setChecksum("498d584f08389d40cff70c4adf0659ff");
+//            f.setChecksumType("MD5");
+//
+//            FLocat fl = f.newFLocat();
+//            fl.setHref("http://localhost/myapp/get/XTAL_DATASET_de.tar.bz.0");
+//            fl.setLocType("URL");
+//
+//            f.addFLocat(fl);
+//            fg.addFile(f);
+//
+//            au.edu.apsr.mtk.base.File f2 = fg.newFile();
+//            f2.setID("F-2");
+//            f2.setSize(65193743);
+//            f2.setMIMEType("application/x-bzip");
+//            f2.setOwnerID("de.tar.bz.1");
+//            f2.setChecksum("940faa9ab023cb0d42ef103a34b8c5bd");
+//            f2.setChecksumType("MD5");
+//
+//            FLocat fl2 = f2.newFLocat();
+//            fl2.setHref("http://localhost/myapp/get/XTAL_DATASET_de.tar.bz.1");
+//            fl2.setLocType("URL");
+//
+//            f2.addFLocat(fl2);
+//            fg.addFile(f2);
+//
+//            fs.addFileGrp(fg);
+//            mets.setFileSec(fs);
+
+            StructMap sm = mets.newStructMap();
+            mets.addStructMap(sm);
+
+            Div d = sm.newDiv();
+            d.setType("investigation");
+            d.setDmdID("J-1");
+            sm.addDiv(d);
+
+//            Div d2 = d.newDiv();
+//            d2.setType("dataset");
+//            d2.setDmdID("J-2");
+//            d.addDiv(d2);
+
+//            Fptr fp = d2.newFptr();
+//            fp.setFileID("F-1");
+//            d2.addFptr(fp);
+//
+//            Fptr fp2 = d2.newFptr();
+//            fp2.setFileID("F-2");
+//            d2.addFptr(fp2);
+        } catch (METSException e) {
             e.printStackTrace();
         }
-        dmd.setMdWrap(mdw);
-
-        mets.addDmdSec(dmd);
-
-        DmdSec dmd2 = mets.newDmdSec();
-        dmd2.setID("J-2");
-        MdWrap mdw2 = dmd2.newMdWrap();
-        mdw2.setMDType("MODS");
-        try {
-            mdw2.setXmlData(createMODS("APS Source 125 Deg (includes xfiles, denzo)", "dataset").getDocumentElement());
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-        dmd2.setMdWrap(mdw2);
-
-        mets.addDmdSec(dmd2);
-
-        FileSec fs = mets.newFileSec();
-        FileGrp fg = fs.newFileGrp();
-        fg.setUse("original");
-        au.edu.apsr.mtk.base.File f = fg.newFile();
-        f.setID("F-1");
-        f.setSize(2097152000);
-        f.setMIMEType("application/x-bzip");
-        f.setOwnerID("de.tar.bz.0");
-        f.setChecksum("498d584f08389d40cff70c4adf0659ff");
-        f.setChecksumType("MD5");
-
-        FLocat fl = f.newFLocat();
-        fl.setHref("http://localhost/myapp/get/XTAL_DATASET_de.tar.bz.0");
-        fl.setLocType("URL");
-
-        f.addFLocat(fl);
-        fg.addFile(f);
-
-        au.edu.apsr.mtk.base.File f2 = fg.newFile();
-        f2.setID("F-2");
-        f2.setSize(65193743);
-        f2.setMIMEType("application/x-bzip");
-        f2.setOwnerID("de.tar.bz.1");
-        f2.setChecksum("940faa9ab023cb0d42ef103a34b8c5bd");
-        f2.setChecksumType("MD5");
-
-        FLocat fl2 = f2.newFLocat();
-        fl2.setHref("http://localhost/myapp/get/XTAL_DATASET_de.tar.bz.1");
-        fl2.setLocType("URL");
-
-        f2.addFLocat(fl2);
-        fg.addFile(f2);
-
-        fs.addFileGrp(fg);
-        mets.setFileSec(fs);
-
-        StructMap sm = mets.newStructMap();
-        mets.addStructMap(sm);
-
-        Div d = sm.newDiv();
-        d.setType("investigation");
-        d.setDmdID("J-1");
-        sm.addDiv(d);
-
-        Div d2 = d.newDiv();
-        d2.setType("dataset");
-        d2.setDmdID("J-2");
-        d.addDiv(d2);
-
-        Fptr fp = d2.newFptr();
-        fp.setFileID("F-1");
-        d2.addFptr(fp);
-
-        Fptr fp2 = d2.newFptr();
-        fp2.setFileID("F-2");
-        d2.addFptr(fp2);
 
         try {
             mw.validate();
@@ -374,11 +420,13 @@ public class Harvester {
             e.printStackTrace();
         }
 
+        System.out.println();
         mw.write(System.out);
+        System.out.println();
 
     }
 
-    static private Document createMODS(String title, String genre) throws ParserConfigurationException
+    static private Document createTitleMODS(String title, String genre) throws ParserConfigurationException
     {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -395,6 +443,66 @@ public class Harvester {
         Element g = doc.createElement("genre");
         g.setTextContent(genre);
         root.appendChild(g);
+
+        return doc;
+    }
+
+    static private Document createRoleMODS(String role) throws ParserConfigurationException
+    {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
+        doc.appendChild(root);
+
+        Element rol = doc.createElement("role");
+        rol.setTextContent(role);
+        root.appendChild(rol);
+
+        return doc;
+    }
+
+    static private Document createArtistMODS(String artist) throws ParserConfigurationException
+    {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
+        doc.appendChild(root);
+
+        Element art = doc.createElement("artist");
+        art.setTextContent(artist);
+        root.appendChild(art);
+
+        return doc;
+    }
+
+    static private Document createAuthorMODS(String author) throws ParserConfigurationException
+    {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
+        doc.appendChild(root);
+
+        Element aut = doc.createElement("author");
+        aut.setTextContent(author);
+        root.appendChild(aut);
+
+        return doc;
+    }
+
+    static private Document createNoteMODS(String note) throws ParserConfigurationException
+    {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.newDocument();
+        Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
+        doc.appendChild(root);
+
+        Element not = doc.createElement("note");
+        not.setTextContent(note);
+        root.appendChild(not);
 
         return doc;
     }
