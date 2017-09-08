@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created by baj on 7/28/16.
@@ -247,7 +250,8 @@ public class Harvester {
                 reader.readNext();
             while ((line = reader.readNext()) != null) {
                 if (!line[0].isEmpty() )
-                    writeMETS("./test/data/METSfile.xml", line);
+                    writeMETS("/home/baj/Projects/larm-research-data-harvester/harvester/test/data/mets.xml", line);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -394,9 +398,51 @@ public class Harvester {
             e.printStackTrace();
         }
 
-        System.out.println();
-        mw.write(System.out);
-        System.out.println();
+        //System.out.println();
+        File file = new File(filenameMETS);
+        try {
+            file.createNewFile();
+            OutputStream out = new FileOutputStream(file);
+            mw.write(out);
+
+
+            FileOutputStream fos = new FileOutputStream("/home/baj/Projects/larm-research-data-harvester/harvester/test/data/valse"+line[0]+".zip");
+
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+
+            File fileToZip = new File(filenameMETS);
+
+            FileInputStream fis = new FileInputStream(fileToZip);
+
+            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+
+            zipOut.putNextEntry(zipEntry);
+
+            final byte[] bytes = new byte[1024];
+
+            int length;
+
+            while((length = fis.read(bytes)) >= 0) {
+
+                zipOut.write(bytes, 0, length);
+
+            }
+
+            zipOut.close();
+
+            fis.close();
+
+            fos.close();
+            zipOut.close();
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //System.out.println();
+
 
     }
 
