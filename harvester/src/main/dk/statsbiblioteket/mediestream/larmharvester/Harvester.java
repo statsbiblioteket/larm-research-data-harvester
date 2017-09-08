@@ -339,6 +339,19 @@ public class Harvester {
 
             mets.addDmdSec(dmd4);
 
+            DmdSec dmd5 = mets.newDmdSec();
+            dmd5.setID("J-5");
+            MdWrap mdw5 = dmd5.newMdWrap();
+            mdw5.setMDType("MODS");
+            try {
+                mdw5.setXmlData(createNoteMODS(line[9]).getDocumentElement());
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            dmd5.setMdWrap(mdw5);
+
+            mets.addDmdSec(dmd5);
+
 //            DmdSec dmd2 = mets.newDmdSec();
 //            dmd2.setID("J-2");
 //            MdWrap mdw2 = dmd2.newMdWrap();
@@ -455,7 +468,7 @@ public class Harvester {
         Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
         doc.appendChild(root);
 
-        Element rol = doc.createElement("role");
+        Element rol = doc.createElement("subject");
         rol.setTextContent(role);
         root.appendChild(rol);
 
@@ -470,7 +483,7 @@ public class Harvester {
         Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
         doc.appendChild(root);
 
-        Element art = doc.createElement("artist");
+        Element art = doc.createElement("subject");
         art.setTextContent(artist);
         root.appendChild(art);
 
@@ -485,7 +498,7 @@ public class Harvester {
         Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
         doc.appendChild(root);
 
-        Element aut = doc.createElement("author");
+        Element aut = doc.createElement("subject");
         aut.setTextContent(author);
         root.appendChild(aut);
 
@@ -500,7 +513,7 @@ public class Harvester {
         Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
         doc.appendChild(root);
 
-        Element not = doc.createElement("note");
+        Element not = doc.createElement("abstract");
         not.setTextContent(note);
         root.appendChild(not);
 
