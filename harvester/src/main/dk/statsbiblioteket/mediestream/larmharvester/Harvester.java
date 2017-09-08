@@ -292,65 +292,26 @@ public class Harvester {
             MdWrap mdw = dmd.newMdWrap();
             mdw.setMDType("MODS");
             try {
-                mdw.setXmlData(createTitleMODS(line[11], line[14]).getDocumentElement());
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.newDocument();
+                Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
+                doc.appendChild(root);
+                createTitleMODS(line[11], line[14], doc, root);
+                createSubjectMODS(line[20], doc, root);//role
+                createSubjectMODS(line[18], doc, root);//artist
+                createSubjectMODS(line[16], doc, root);//author
+                createAuthorMODS("Royal Danish Library", doc, root);
+                createNoteMODS(line[9], doc, root);
+
+                mdw.setXmlData(doc.getDocumentElement());
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
             }
             dmd.setMdWrap(mdw);
 
-            mets.addDmdSec(dmd);
+            mets.addDmdSec(dmd);;
 
-            DmdSec dmd2 = mets.newDmdSec();
-            dmd2.setID("J-2");
-            MdWrap mdw2 = dmd2.newMdWrap();
-            mdw2.setMDType("MODS");
-            try {
-                mdw2.setXmlData(createRoleMODS(line[20]).getDocumentElement());
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            }
-            dmd2.setMdWrap(mdw2);
-
-            mets.addDmdSec(dmd2);
-
-            DmdSec dmd3 = mets.newDmdSec();
-            dmd3.setID("J-3");
-            MdWrap mdw3 = dmd3.newMdWrap();
-            mdw3.setMDType("MODS");
-            try {
-                mdw3.setXmlData(createArtistMODS(line[18]).getDocumentElement());
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            }
-            dmd3.setMdWrap(mdw3);
-
-            mets.addDmdSec(dmd3);
-
-            DmdSec dmd4 = mets.newDmdSec();
-            dmd4.setID("J-4");
-            MdWrap mdw4 = dmd4.newMdWrap();
-            mdw4.setMDType("MODS");
-            try {
-                mdw4.setXmlData(createAuthorMODS(line[16]).getDocumentElement());
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            }
-            dmd4.setMdWrap(mdw4);
-
-            mets.addDmdSec(dmd4);
-
-            DmdSec dmd5 = mets.newDmdSec();
-            dmd5.setID("J-5");
-            MdWrap mdw5 = dmd5.newMdWrap();
-            mdw5.setMDType("MODS");
-            try {
-                mdw5.setXmlData(createNoteMODS(line[9]).getDocumentElement());
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            }
-            dmd5.setMdWrap(mdw5);
-
-            mets.addDmdSec(dmd5);
 
 //            DmdSec dmd2 = mets.newDmdSec();
 //            dmd2.setID("J-2");
@@ -405,7 +366,7 @@ public class Harvester {
             mets.addStructMap(sm);
 
             Div d = sm.newDiv();
-            d.setType("investigation");
+            d.setType("metadata");
             d.setDmdID("J-1");
             sm.addDiv(d);
 
@@ -439,14 +400,8 @@ public class Harvester {
 
     }
 
-    static private Document createTitleMODS(String title, String genre) throws ParserConfigurationException
+    static private void createTitleMODS(String title, String genre, Document doc, Element root) throws ParserConfigurationException
     {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.newDocument();
-        Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
-        doc.appendChild(root);
-
         Element ti = doc.createElement("titleInfo");
         Element t = doc.createElement("title");
         t.setTextContent(title);
@@ -457,9 +412,33 @@ public class Harvester {
         g.setTextContent(genre);
         root.appendChild(g);
 
-        return doc;
+        //return doc;
+    }
+    static private void createSubjectMODS(String subject, Document doc, Element root) throws ParserConfigurationException
+    {
+        Element ti = doc.createElement("subject");
+        Element t = doc.createElement("topic");
+        t.setTextContent(subject);
+        ti.appendChild(t);
+        root.appendChild(ti);
     }
 
+    static private void createAuthorMODS(String author, Document doc, Element root) throws ParserConfigurationException
+    {
+        Element name = doc.createElement("name");
+        Element role = doc.createElement("role");
+        Element roleTerm = doc.createElement("roleTerm");
+        roleTerm.setAttribute("type", "text");
+        roleTerm.setTextContent("author");
+        role.appendChild(roleTerm);
+        name.appendChild(role);
+
+        Element aut = doc.createElement("namePart");
+        aut.setTextContent(author);
+        name.appendChild(aut);
+
+        root.appendChild(name);
+    }
     static private Document createRoleMODS(String role) throws ParserConfigurationException
     {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -505,19 +484,12 @@ public class Harvester {
         return doc;
     }
 
-    static private Document createNoteMODS(String note) throws ParserConfigurationException
+    static private void createNoteMODS(String note, Document doc, Element root) throws ParserConfigurationException
     {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.newDocument();
-        Element root = doc.createElementNS("http://www.loc.gov/mods/v3", "mods");
-        doc.appendChild(root);
-
         Element not = doc.createElement("abstract");
         not.setTextContent(note);
         root.appendChild(not);
 
-        return doc;
     }
 
     /**
