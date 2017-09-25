@@ -271,7 +271,6 @@ public class Harvester {
             mets = mw.getMETSObject();
 
             mets.setObjID("hdl:1902/178");
-            //mets.setProfile("http://localhost/profiles/scientific-datasets-profile");
             mets.setProfile("http://www.dspace.org/schema/aip/mets_aip_1_0.xsd");
             mets.setType("DSpace ITEM");
 
@@ -316,56 +315,6 @@ public class Harvester {
 
             mets.addDmdSec(dmd);;
 
-
-//            DmdSec dmd2 = mets.newDmdSec();
-//            dmd2.setID("J-2");
-//            MdWrap mdw2 = dmd2.newMdWrap();
-//            mdw2.setMDType("MODS");
-//            try {
-//                mdw2.setXmlData(createTitleMODS("APS Source 125 Deg (includes xfiles, denzo)", "dataset", line[20], line[18], line[16], line[9]).getDocumentElement());
-//            } catch (ParserConfigurationException e) {
-//                e.printStackTrace();
-//            }
-//            dmd2.setMdWrap(mdw2);
-//
-//            mets.addDmdSec(dmd2);
-//
-//            FileSec fs = mets.newFileSec();
-//            FileGrp fg = fs.newFileGrp();
-//            fg.setUse("original");
-//            au.edu.apsr.mtk.base.File f = fg.newFile();
-//            f.setID("F-1");
-//            f.setSize(2097152000);
-//            f.setMIMEType("application/x-bzip");
-//            f.setOwnerID("de.tar.bz.0");
-//            f.setChecksum("498d584f08389d40cff70c4adf0659ff");
-//            f.setChecksumType("MD5");
-//
-//            FLocat fl = f.newFLocat();
-//            fl.setHref("http://localhost/myapp/get/XTAL_DATASET_de.tar.bz.0");
-//            fl.setLocType("URL");
-//
-//            f.addFLocat(fl);
-//            fg.addFile(f);
-//
-//            au.edu.apsr.mtk.base.File f2 = fg.newFile();
-//            f2.setID("F-2");
-//            f2.setSize(65193743);
-//            f2.setMIMEType("application/x-bzip");
-//            f2.setOwnerID("de.tar.bz.1");
-//            f2.setChecksum("940faa9ab023cb0d42ef103a34b8c5bd");
-//            f2.setChecksumType("MD5");
-//
-//            FLocat fl2 = f2.newFLocat();
-//            fl2.setHref("http://localhost/myapp/get/XTAL_DATASET_de.tar.bz.1");
-//            fl2.setLocType("URL");
-//
-//            f2.addFLocat(fl2);
-//            fg.addFile(f2);
-//
-//            fs.addFileGrp(fg);
-//            mets.setFileSec(fs);
-
             StructMap sm = mets.newStructMap();
             mets.addStructMap(sm);
 
@@ -374,18 +323,6 @@ public class Harvester {
             d.setDmdID("J-1");
             sm.addDiv(d);
 
-//            Div d2 = d.newDiv();
-//            d2.setType("dataset");
-//            d2.setDmdID("J-2");
-//            d.addDiv(d2);
-
-//            Fptr fp = d2.newFptr();
-//            fp.setFileID("F-1");
-//            d2.addFptr(fp);
-//
-//            Fptr fp2 = d2.newFptr();
-//            fp2.setFileID("F-2");
-//            d2.addFptr(fp2);
         } catch (METSException e) {
             e.printStackTrace();
         }
